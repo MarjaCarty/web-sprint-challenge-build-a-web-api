@@ -4,7 +4,7 @@ const Action = require("./actions-model");
 
 const router = express.Router();
 
-router.get("/", async (req, res) => {
+router.get("/", async (_, res) => {
   try {
     const actions = await Action.get();
     res.status(200).json(actions);
@@ -27,8 +27,46 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.get("/:id", async (req, res) => {});
-router.put("/:id", async (req, res) => {});
-router.delete("/:id", async (req, res) => {});
+router.get("/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const action = await Action.get(id);
+    res.status(200).json(action);
+  } catch (err) {
+    res.status(500).json({
+      message: "There was an error retrieving action",
+      error: err.message,
+    });
+  }
+});
+router.put("/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const update = await Action.update(id, req.body);
+    res.status(200).json(update);
+  } catch (err) {
+    res.status(500).json({
+      message: "There was an error updating action",
+      error: err.message,
+    });
+  }
+});
+router.delete("/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const deleted = await Action.remove(id);
+    res
+      .status(200)
+      .json({ message: `${deleted} messages successfully deleted` });
+  } catch (err) {
+    res.status(500).json({
+      message: "There was an error deleting action",
+      error: err.message,
+    });
+  }
+});
 
 module.exports = router;
