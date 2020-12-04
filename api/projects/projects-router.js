@@ -69,6 +69,18 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-router.get("/:id/actions", async (req, res) => {});
+router.get("/:id/actions", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const actions = await Project.getProjectActions(id);
+    res.status(200).json(actions);
+  } catch (err) {
+    res.status(500).json({
+      message: "There was an error retrieving actions",
+      error: err.message,
+    });
+  }
+});
 
 module.exports = router;
