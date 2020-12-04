@@ -36,7 +36,7 @@ const validateActionId = async (req, res, next) => {
 const validateAction = (req, res, next) => {
   if (!req.body) {
     res.status(400).json({ message: "Missing action data" });
-  } else if (!req.body.project_id || req.body.description || req.body.notes) {
+  } else if (!req.body.project_id || !req.body.description || !req.body.notes) {
     res
       .status(400)
       .json({ message: "Project id, description, and notes are required" });
