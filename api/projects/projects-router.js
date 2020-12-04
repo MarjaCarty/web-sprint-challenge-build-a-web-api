@@ -4,6 +4,36 @@ const Project = require("./projects-model");
 
 const router = express.Router();
 
+const validateProjectId = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    const checkedProject = await Project.get(id);
+
+    if (!checkedProject) {
+      res
+        .status(404)
+        .json({ message: "A project with this id does not exist" });
+    } else {
+      next();
+    }
+  } catch (err) {
+    res.status(500).json({ message: "project error", error: err.message });
+  }
+};
+
+const validateProject = (req, res, next) => {
+  if (!req.body) {
+    res.status(400).json({ message: "Missing project data" });
+  }
+
+  if (!req.body.name || !req.body.description) {
+    res.status(400).json({ message: "Name and description are required" });
+  } else {
+    next();
+  }
+};
+
 router.get("/", async (_, res) => {
   try {
     const projects = await Project.get();
@@ -15,7 +45,7 @@ router.get("/", async (_, res) => {
     });
   }
 });
-router.post("/", async (req, res) => {
+router.post("/", validateProject, async (req, res) => {
   try {
     const newProject = await Project.insert(req.body);
     res.status(201).json(newProject);
@@ -27,7 +57,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", validateProjectId, async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -40,7 +70,7 @@ router.get("/:id", async (req, res) => {
     });
   }
 });
-router.put("/:id", async (req, res) => {
+router.put("/:id", validateProjectId, async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -53,7 +83,7 @@ router.put("/:id", async (req, res) => {
     });
   }
 });
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", validateProjectId, async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -69,7 +99,7 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-router.get("/:id/actions", async (req, res) => {
+router.get("/:id/actions", validateProjectId, async (req, res) => {
   const { id } = req.params;
 
   try {
