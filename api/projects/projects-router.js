@@ -27,9 +27,47 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.get("/:id", async (req, res) => {});
-router.put("/:id", async (req, res) => {});
-router.delete("/:id", async (req, res) => {});
+router.get("/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const project = await Project.get(id);
+    res.status(200).json(project);
+  } catch (err) {
+    res.status(500).json({
+      message: "There was an error retrieving project",
+      error: err.message,
+    });
+  }
+});
+router.put("/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const update = await Project.update(id, req.body);
+    res.status(200).json(update);
+  } catch (err) {
+    res.status(500).json({
+      message: "There was an error updating project",
+      error: err.message,
+    });
+  }
+});
+router.delete("/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const deleted = await Project.remove(id);
+    res
+      .status(200)
+      .json({ message: `${deleted} projects successfully deleted` });
+  } catch (err) {
+    res.status(500).json({
+      message: "There was an error deleting project",
+      error: err.message,
+    });
+  }
+});
 
 router.get("/:id/actions", async (req, res) => {});
 
