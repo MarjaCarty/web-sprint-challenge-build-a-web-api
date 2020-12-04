@@ -22,11 +22,15 @@ const validateProjectId = async (req, res, next) => {
   }
 };
 
-const validateProject = (req, res, next) => {
+const validateReqBody = (req, res, next) => {
   if (!req.body.name && !req.body.description) {
     res.status(400).json({ message: "Missing project data" });
+  } else {
+    next();
   }
+};
 
+const validateProject = (req, res, next) => {
   if (!req.body.name || !req.body.description) {
     res.status(400).json({ message: "Name and description are required" });
   } else {
@@ -45,7 +49,7 @@ router.get("/", async (_, res) => {
     });
   }
 });
-router.post("/", validateProject, async (req, res) => {
+router.post("/", validateReqBody, validateProject, async (req, res) => {
   try {
     const newProject = await Project.insert(req.body);
     res.status(201).json(newProject);
@@ -70,7 +74,7 @@ router.get("/:id", validateProjectId, async (req, res) => {
     });
   }
 });
-router.put("/:id", validateProjectId, async (req, res) => {
+router.put("/:id", validateReqBody, validateProjectId, async (req, res) => {
   const { id } = req.params;
 
   try {

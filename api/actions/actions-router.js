@@ -33,11 +33,15 @@ const validateActionId = async (req, res, next) => {
   }
 };
 
-const validateAction = (req, res, next) => {
+const validateReqBody = (req, res, next) => {
   if (!req.body.project_id && !req.body.description && !req.body.notes) {
     res.status(400).json({ message: "Missing action data" });
+  } else {
+    next();
   }
+};
 
+const validateAction = (req, res, next) => {
   if (!req.body.project_id || !req.body.description || !req.body.notes) {
     res.status(400).json({
       message: "Project id, description, and notes are required",
@@ -59,17 +63,23 @@ router.get("/", async (_, res) => {
     });
   }
 });
-router.post("/", validateProjectId, validateAction, async (req, res) => {
-  try {
-    const newAction = await Action.insert(req.body);
-    res.status(201).json(newAction);
-  } catch (err) {
-    res.status(500).json({
-      message: "There was an error creating action",
-      error: err.message,
-    });
+router.post(
+  "/",
+  validateProjectId,
+  validateReqBody,
+  validateAction,
+  async (req, res) => {
+    try {
+      const newAction = await Action.insert(req.body);
+      res.status(201).json(newAction);
+    } catch (err) {
+      res.status(500).json({
+        message: "There was an error creating action",
+        error: err.message,
+      });
+    }
   }
-});
+);
 
 router.get("/:id", validateActionId, async (req, res) => {
   const { id } = req.params;
@@ -84,7 +94,7 @@ router.get("/:id", validateActionId, async (req, res) => {
     });
   }
 });
-router.put("/:id", validateActionId, async (req, res) => {
+router.put("/:id", validateReqBody, validateActionId, async (req, res) => {
   const { id } = req.params;
 
   try {
