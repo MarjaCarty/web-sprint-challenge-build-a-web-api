@@ -1,8 +1,19 @@
 // Write your "actions" router here!
 const express = require("express");
 const Action = require("./actions-model");
+const Project = require("../projects/projects-model");
 
 const router = express.Router();
+
+const validateProjectId = async (req, res, next) => {
+  const checkedProject = await Project.get(req.body.project_id);
+
+  if (!checkedProject) {
+    res.status(404).json({ message: "This project_id does not exist" });
+  } else {
+    next();
+  }
+};
 
 const validateActionId = async (req, res, next) => {
   const { id } = req.params;
@@ -45,7 +56,7 @@ router.get("/", async (_, res) => {
     });
   }
 });
-router.post("/", validateAction, async (req, res) => {
+router.post("/", validateProjectId, validateAction, async (req, res) => {
   try {
     const newAction = await Action.insert(req.body);
     res.status(201).json(newAction);
